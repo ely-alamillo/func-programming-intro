@@ -3,14 +3,12 @@
 
 /* eslint-disable prefer-arrow-callback */
 
-
 /* ---------- Internals ---------- */
 
 function namedAs(value, fn) {
   Object.defineProperty(fn, 'name', { value });
   return fn;
 }
-
 
 // NOTE This file is loaded by gitbook's exercises plugin. When it does, there's an
 // `assert` function available in the global scope.
@@ -20,7 +18,11 @@ if (typeof assert !== 'function' && typeof require === 'function') {
   global.assert = require('assert');
 }
 
-assert.arrayEqual = function assertArrayEqual(actual, expected, message = 'arrayEqual') {
+assert.arrayEqual = function assertArrayEqual(
+  actual,
+  expected,
+  message = 'arrayEqual'
+) {
   if (actual.length !== expected.length) {
     throw new Error(message);
   }
@@ -32,7 +34,6 @@ assert.arrayEqual = function assertArrayEqual(actual, expected, message = 'array
   }
 };
 /* eslint-enable no-undef, global-require */
-
 
 function inspect(x) {
   if (x && typeof x.inspect === 'function') {
@@ -57,12 +58,13 @@ function inspect(x) {
   }
 
   function inspectArgs(args) {
-    return Array.isArray(args) ? `[${args.map(inspect).join(', ')}]` : inspectTerm(args);
+    return Array.isArray(args)
+      ? `[${args.map(inspect).join(', ')}]`
+      : inspectTerm(args);
   }
 
-  return (typeof x === 'function') ? inspectFn(x) : inspectArgs(x);
+  return typeof x === 'function' ? inspectFn(x) : inspectArgs(x);
 }
-
 
 /* eslint-disable no-param-reassign */
 function withSpyOn(prop, obj, fn) {
@@ -78,7 +80,6 @@ function withSpyOn(prop, obj, fn) {
 }
 /* eslint-enable no-param-reassign */
 
-
 const typeMismatch = (src, got, fn) => `Type Mismatch in function '${fn}'
 
         ${fn} :: ${got}
@@ -87,11 +88,9 @@ const typeMismatch = (src, got, fn) => `Type Mismatch in function '${fn}'
 
         ${fn} :: ${src}`;
 
-
 const capitalize = s => `${s[0].toUpperCase()}${s.substring(1)}`;
 
-
-const ordinal = (i) => {
+const ordinal = i => {
   switch (i) {
     case 1:
       return '1st';
@@ -104,7 +103,7 @@ const ordinal = (i) => {
   }
 };
 
-const getType = (x) => {
+const getType = x => {
   if (x === null) {
     return 'Null';
   }
@@ -128,7 +127,6 @@ const getType = (x) => {
   return capitalize(typeof x);
 };
 
-
 /* ---------- Essential FP Functions ---------- */
 
 // NOTE A slightly pumped up version of `curry` which also keeps track of
@@ -137,7 +135,7 @@ const getType = (x) => {
 function curry(fn) {
   assert(
     typeof fn === 'function',
-    typeMismatch('function -> ?', [getType(fn), '?'].join(' -> '), 'curry'),
+    typeMismatch('function -> ?', [getType(fn), '?'].join(' -> '), 'curry')
   );
 
   const arity = fn.length;
@@ -152,7 +150,6 @@ function curry(fn) {
     return fn.call(this || { partially: false }, ...args);
   });
 }
-
 
 // NOTE A slightly pumped up version of `compose` which also keeps track of the chain
 // of callees. In the end, a function created with `compose` holds a `callees` variable
@@ -171,7 +168,9 @@ function compose(...fns) {
 
       assert(
         typeof fn === 'function',
-        `Invalid Composition: ${ordinal(n - i)} element in a composition isn't a function`,
+        `Invalid Composition: ${ordinal(
+          n - i
+        )} element in a composition isn't a function`
       );
 
       $compose.callees.push(fn.name);
@@ -181,7 +180,6 @@ function compose(...fns) {
     return $args[0];
   };
 }
-
 
 /* ---------- Algebraic Data Structures ---------- */
 
@@ -195,13 +193,14 @@ class Either {
   }
 }
 
-
 class Left extends Either {
-  get isLeft() { // eslint-disable-line class-methods-use-this
+  get isLeft() {
+    // eslint-disable-line class-methods-use-this
     return true;
   }
 
-  get isRight() { // eslint-disable-line class-methods-use-this
+  get isRight() {
+    // eslint-disable-line class-methods-use-this
     return false;
   }
 
@@ -238,13 +237,14 @@ class Left extends Either {
   }
 }
 
-
 class Right extends Either {
-  get isLeft() { // eslint-disable-line class-methods-use-this
+  get isLeft() {
+    // eslint-disable-line class-methods-use-this
     return false;
   }
 
-  get isRight() { // eslint-disable-line class-methods-use-this
+  get isRight() {
+    // eslint-disable-line class-methods-use-this
     return true;
   }
 
@@ -280,7 +280,6 @@ class Right extends Either {
     fn(this.$value).map(Either.of);
   }
 }
-
 
 class Identity {
   static of(x) {
@@ -332,7 +331,7 @@ class IO {
   constructor(io) {
     assert(
       typeof io === 'function',
-      'invalid `io` operation given to IO constructor. Use `IO.of` if you want to lift a value in a default minimal IO context.',
+      'invalid `io` operation given to IO constructor. Use `IO.of` if you want to lift a value in a default minimal IO context.'
     );
 
     this.unsafePerformIO = io;
@@ -354,7 +353,6 @@ class IO {
     return `(IO ${getType(this.unsafePerformIO())})`;
   }
 
-
   join() {
     return this.unsafePerformIO();
   }
@@ -364,12 +362,11 @@ class IO {
   }
 }
 
-
 class Map {
   constructor(x) {
     assert(
       typeof x === 'object' && x !== null,
-      'tried to create `Map` with non object-like',
+      'tried to create `Map` with non object-like'
     );
 
     this.$value = x;
@@ -396,15 +393,19 @@ class Map {
   }
 
   reduceWithKeys(fn, zero) {
-    return Object.keys(this.$value)
-      .reduce((acc, k) => fn(acc, this.$value[k], k), zero);
+    return Object.keys(this.$value).reduce(
+      (acc, k) => fn(acc, this.$value[k], k),
+      zero
+    );
   }
 
   map(fn) {
-    return new Map(this.reduceWithKeys((obj, v, k) => {
-      obj[k] = fn(v); // eslint-disable-line no-param-reassign
-      return obj;
-    }, {}));
+    return new Map(
+      this.reduceWithKeys((obj, v, k) => {
+        obj[k] = fn(v); // eslint-disable-line no-param-reassign
+        return obj;
+      }, {})
+    );
   }
 
   sequence(of) {
@@ -413,12 +414,14 @@ class Map {
 
   traverse(of, fn) {
     return this.reduceWithKeys(
-      (f, a, k) => fn(a).map(b => m => m.insert(k, b)).ap(f),
-      of(new Map({})),
+      (f, a, k) =>
+        fn(a)
+          .map(b => m => m.insert(k, b))
+          .ap(f),
+      of(new Map({}))
     );
   }
 }
-
 
 class List {
   static of(x) {
@@ -426,10 +429,7 @@ class List {
   }
 
   constructor(xs) {
-    assert(
-      Array.isArray(xs),
-      'tried to create `List` from non-array',
-    );
+    assert(Array.isArray(xs), 'tried to create `List` from non-array');
 
     this.$value = xs;
   }
@@ -458,12 +458,14 @@ class List {
 
   traverse(of, fn) {
     return this.$value.reduce(
-      (f, a) => fn(a).map(b => bs => bs.concat(b)).ap(f),
-      of(new List([])),
+      (f, a) =>
+        fn(a)
+          .map(b => bs => bs.concat(b))
+          .ap(f),
+      of(new List([]))
     );
   }
 }
-
 
 class Maybe {
   static of(x) {
@@ -515,12 +517,11 @@ class Maybe {
   }
 }
 
-
 class Task {
   constructor(fork) {
     assert(
       typeof fork === 'function',
-      'invalid `fork` operation given to Task constructor. Use `Task.of` if you want to lift a value in a default minimal Task context.',
+      'invalid `fork` operation given to Task constructor. Use `Task.of` if you want to lift a value in a default minimal Task context.'
     );
 
     this.fork = fork;
@@ -539,14 +540,18 @@ class Task {
   }
 
   chain(fn) {
-    return new Task((reject, resolve) => this.fork(reject, x => fn(x).fork(reject, resolve)));
+    return new Task((reject, resolve) =>
+      this.fork(reject, x => fn(x).fork(reject, resolve))
+    );
   }
 
-  inspect() { // eslint-disable-line class-methods-use-this
+  inspect() {
+    // eslint-disable-line class-methods-use-this
     return 'Task(?)';
   }
 
-  getType() { // eslint-disable-line class-methods-use-this
+  getType() {
+    // eslint-disable-line class-methods-use-this
     return '(Task ? ?)';
   }
 
@@ -555,11 +560,15 @@ class Task {
   }
 
   map(fn) {
-    return new Task((reject, resolve) => this.fork(reject, compose(resolve, fn)));
+    return new Task((reject, resolve) =>
+      this.fork(reject, compose(resolve, fn))
+    );
   }
 }
 
-const identity = function identity(x) { return x; };
+const identity = function identity(x) {
+  return x;
+};
 
 const either = curry(function either(f, g, e) {
   if (e.isLeft) {
@@ -569,7 +578,9 @@ const either = curry(function either(f, g, e) {
   return g(e.$value);
 });
 
-const left = function left(x) { return new Left(x); };
+const left = function left(x) {
+  return new Left(x);
+};
 
 const maybe = curry(function maybe(v, f, m) {
   if (m.isNothing) {
@@ -579,14 +590,22 @@ const maybe = curry(function maybe(v, f, m) {
   return f(m.$value);
 });
 
-const nothing = function nothing() { return Maybe.of(null); };
+const nothing = function nothing() {
+  return Maybe.of(null);
+};
 
-const reject = function reject(x) { return Task.rejected(x); };
+const reject = function reject(x) {
+  return Task.rejected(x);
+};
 
 const chain = curry(function chain(fn, m) {
   assert(
     typeof fn === 'function' && typeof m.chain === 'function',
-    typeMismatch('Monad m => (a -> m b) -> m a -> m a', [getType(fn), getType(m), 'm a'].join(' -> '), 'chain'),
+    typeMismatch(
+      'Monad m => (a -> m b) -> m a -> m a',
+      [getType(fn), getType(m), 'm a'].join(' -> '),
+      'chain'
+    )
   );
 
   return m.chain(fn);
@@ -595,7 +614,11 @@ const chain = curry(function chain(fn, m) {
 const join = function join(m) {
   assert(
     typeof m.chain === 'function',
-    typeMismatch('Monad m => m (m a) -> m a', [getType(m), 'm a'].join(' -> '), 'join'),
+    typeMismatch(
+      'Monad m => m (m a) -> m a',
+      [getType(m), 'm a'].join(' -> '),
+      'join'
+    )
   );
 
   return m.join();
@@ -604,7 +627,11 @@ const join = function join(m) {
 const map = curry(function map(fn, f) {
   assert(
     typeof fn === 'function' && typeof f.map === 'function',
-    typeMismatch('Functor f => (a -> b) -> f a -> f b', [getType(fn), getType(f), 'f b'].join(' -> '), 'map'),
+    typeMismatch(
+      'Functor f => (a -> b) -> f a -> f b',
+      [getType(fn), getType(f), 'f b'].join(' -> '),
+      'map'
+    )
   );
 
   return f.map(fn);
@@ -613,7 +640,11 @@ const map = curry(function map(fn, f) {
 const sequence = curry(function sequence(of, x) {
   assert(
     typeof of === 'function' && typeof x.sequence === 'function',
-    typeMismatch('(Applicative f, Traversable t) => (a -> f a) -> t (f a) -> f (t a)', [getType(of), getType(x), 'f (t a)'].join(' -> '), 'sequence'),
+    typeMismatch(
+      '(Applicative f, Traversable t) => (a -> f a) -> t (f a) -> f (t a)',
+      [getType(of), getType(x), 'f (t a)'].join(' -> '),
+      'sequence'
+    )
   );
 
   return x.sequence(of);
@@ -621,12 +652,14 @@ const sequence = curry(function sequence(of, x) {
 
 const traverse = curry(function traverse(of, fn, x) {
   assert(
-    typeof of === 'function' && typeof fn === 'function' && typeof x.traverse === 'function',
+    typeof of === 'function' &&
+      typeof fn === 'function' &&
+      typeof x.traverse === 'function',
     typeMismatch(
       '(Applicative f, Traversable t) => (a -> f a) -> (a -> f b) -> t a -> f (t b)',
       [getType(of), getType(fn), getType(x), 'f (t b)'].join(' -> '),
-      'traverse',
-    ),
+      'traverse'
+    )
   );
 
   return x.traverse(of, fn);
@@ -635,7 +668,7 @@ const traverse = curry(function traverse(of, fn, x) {
 const unsafePerformIO = function unsafePerformIO(io) {
   assert(
     io instanceof IO,
-    typeMismatch('IO a', getType(io), 'unsafePerformIO'),
+    typeMismatch('IO a', getType(io), 'unsafePerformIO')
   );
 
   return io.unsafePerformIO();
@@ -643,22 +676,34 @@ const unsafePerformIO = function unsafePerformIO(io) {
 
 const liftA2 = curry(function liftA2(fn, a1, a2) {
   assert(
-    typeof fn === 'function' && typeof a1.map === 'function' && typeof a1.ap === 'function' && typeof a2.map === 'function',
-    typeMismatch('Applicative f => (a -> b -> c) -> f a -> f b -> f c', [getType(fn), getType(a1), getType(a2)].join(' -> '), 'liftA2'),
+    typeof fn === 'function' &&
+      typeof a1.map === 'function' &&
+      typeof a1.ap === 'function' &&
+      typeof a2.map === 'function',
+    typeMismatch(
+      'Applicative f => (a -> b -> c) -> f a -> f b -> f c',
+      [getType(fn), getType(a1), getType(a2)].join(' -> '),
+      'liftA2'
+    )
   );
 
   return a1.map(fn).ap(a2);
 });
 
-const always = curry(function always(a, b) { return a; });
-
+const always = curry(function always(a, b) {
+  return a;
+});
 
 /* ---------- Pointfree Classic Utilities ---------- */
 
 const add = curry(function add(a, b) {
   assert(
     typeof a === 'number' && typeof b === 'number',
-    typeMismatch('Number -> Number -> Number', [getType(a), getType(b), 'Number'].join(' -> '), 'add'),
+    typeMismatch(
+      'Number -> Number -> Number',
+      [getType(a), getType(b), 'Number'].join(' -> '),
+      'add'
+    )
   );
 
   return a + b;
@@ -667,7 +712,11 @@ const add = curry(function add(a, b) {
 const concat = curry(function concat(a, b) {
   assert(
     typeof a === 'string' && typeof b === 'string',
-    typeMismatch('String -> String -> String', [getType(a), getType(b), 'String'].join(' -> '), 'concat'),
+    typeMismatch(
+      'String -> String -> String',
+      [getType(a), getType(b), 'String'].join(' -> '),
+      'concat'
+    )
   );
 
   return a.concat(b);
@@ -676,8 +725,12 @@ const concat = curry(function concat(a, b) {
 const eq = curry(function eq(a, b) {
   assert(
     getType(a) === getType(b),
-    typeMismatch('a -> a -> Boolean', [getType(a), getType(b), 'Boolean'].join(' -> '), eq),
-  )
+    typeMismatch(
+      'a -> a -> Boolean',
+      [getType(a), getType(b), 'Boolean'].join(' -> '),
+      eq
+    )
+  );
 
   return a === b;
 });
@@ -685,7 +738,11 @@ const eq = curry(function eq(a, b) {
 const filter = curry(function filter(fn, xs) {
   assert(
     typeof fn === 'function' && Array.isArray(xs),
-    typeMismatch('(a -> Boolean) -> [a] -> [a]', [getType(fn), getType(xs), getType(xs)].join(' -> '), 'filter'),
+    typeMismatch(
+      '(a -> Boolean) -> [a] -> [a]',
+      [getType(fn), getType(xs), getType(xs)].join(' -> '),
+      'filter'
+    )
   );
 
   return xs.filter(fn);
@@ -694,7 +751,11 @@ const filter = curry(function filter(fn, xs) {
 const flip = curry(function flip(fn, a, b) {
   assert(
     typeof fn === 'function',
-    typeMismatch('(a -> b) -> (b -> a)', [getType(fn), '(b -> a)'].join(' -> '), 'flip'),
+    typeMismatch(
+      '(a -> b) -> (b -> a)',
+      [getType(fn), '(b -> a)'].join(' -> '),
+      'flip'
+    )
   );
 
   return fn(b, a);
@@ -703,7 +764,11 @@ const flip = curry(function flip(fn, a, b) {
 const forEach = curry(function forEach(fn, xs) {
   assert(
     typeof fn === 'function' && Array.isArray(xs),
-    typeMismatch('(a -> ()) -> [a] -> ()', [getType(fn), getType(xs), '()'].join(' -> '), 'forEach'),
+    typeMismatch(
+      '(a -> ()) -> [a] -> ()',
+      [getType(fn), getType(xs), '()'].join(' -> '),
+      'forEach'
+    )
   );
 
   xs.forEach(fn);
@@ -711,8 +776,14 @@ const forEach = curry(function forEach(fn, xs) {
 
 const intercalate = curry(function intercalate(str, xs) {
   assert(
-    typeof str === 'string' && Array.isArray(xs) && (xs.length === 0 || typeof xs[0] === 'string'),
-    typeMismatch('String -> [String] -> String', [getType(str), getType(xs), 'String'].join(' -> '), 'intercalate'),
+    typeof str === 'string' &&
+      Array.isArray(xs) &&
+      (xs.length === 0 || typeof xs[0] === 'string'),
+    typeMismatch(
+      'String -> [String] -> String',
+      [getType(str), getType(xs), 'String'].join(' -> '),
+      'intercalate'
+    )
   );
 
   return xs.join(str);
@@ -721,7 +792,7 @@ const intercalate = curry(function intercalate(str, xs) {
 const head = function head(xs) {
   assert(
     Array.isArray(xs) || typeof xs === 'string',
-    typeMismatch('[a] -> a', [getType(xs), 'a'].join(' -> '), 'head'),
+    typeMismatch('[a] -> a', [getType(xs), 'a'].join(' -> '), 'head')
   );
 
   return xs[0];
@@ -730,7 +801,7 @@ const head = function head(xs) {
 const last = function last(xs) {
   assert(
     Array.isArray(xs) || typeof xs === 'string',
-    typeMismatch('[a] -> a', [getType(xs), 'a'].join(' -> '), 'last'),
+    typeMismatch('[a] -> a', [getType(xs), 'a'].join(' -> '), 'last')
   );
 
   return xs[xs.length - 1];
@@ -739,7 +810,11 @@ const last = function last(xs) {
 const match = curry(function match(re, str) {
   assert(
     re instanceof RegExp && typeof str === 'string',
-    typeMismatch('RegExp -> String -> Boolean', [getType(re), getType(str), 'Boolean'].join(' -> '), 'match'),
+    typeMismatch(
+      'RegExp -> String -> Boolean',
+      [getType(re), getType(str), 'Boolean'].join(' -> '),
+      'match'
+    )
   );
 
   return re.test(str);
@@ -748,7 +823,11 @@ const match = curry(function match(re, str) {
 const prop = curry(function prop(p, obj) {
   assert(
     typeof p === 'string' && typeof obj === 'object' && obj !== null,
-    typeMismatch('String -> Object -> a', [getType(p), getType(obj), 'a'].join(' -> '), 'prop'),
+    typeMismatch(
+      'String -> Object -> a',
+      [getType(p), getType(obj), 'a'].join(' -> '),
+      'prop'
+    )
   );
 
   return obj[p];
@@ -757,23 +836,32 @@ const prop = curry(function prop(p, obj) {
 const reduce = curry(function reduce(fn, zero, xs) {
   assert(
     typeof fn === 'function' && Array.isArray(xs),
-    typeMismatch('(b -> a -> b) -> b -> [a] -> b', [getType(fn), getType(zero), getType(xs), 'b'].join(' -> '), 'reduce'),
+    typeMismatch(
+      '(b -> a -> b) -> b -> [a] -> b',
+      [getType(fn), getType(zero), getType(xs), 'b'].join(' -> '),
+      'reduce'
+    )
   );
 
-  return xs.reduce(
-    function $reduceIterator($acc, $x) { return fn($acc, $x); },
-    zero,
-  );
+  return xs.reduce(function $reduceIterator($acc, $x) {
+    return fn($acc, $x);
+  }, zero);
 });
 
 const safeHead = namedAs('safeHead', compose(Maybe.of, head));
 
-const safeProp = curry(function safeProp(p, obj) { return Maybe.of(prop(p, obj)); });
+const safeProp = curry(function safeProp(p, obj) {
+  return Maybe.of(prop(p, obj));
+});
 
 const sortBy = curry(function sortBy(fn, xs) {
   assert(
     typeof fn === 'function' && Array.isArray(xs),
-    typeMismatch('Ord b => (a -> b) -> [a] -> [a]', [getType(fn), getType(xs), '[a]'].join(' -> '), 'sortBy'),
+    typeMismatch(
+      'Ord b => (a -> b) -> [a] -> [a]',
+      [getType(fn), getType(xs), '[a]'].join(' -> '),
+      'sortBy'
+    )
   );
 
   return xs.sort((a, b) => {
@@ -788,7 +876,11 @@ const sortBy = curry(function sortBy(fn, xs) {
 const split = curry(function split(s, str) {
   assert(
     typeof s === 'string' && typeof str === 'string',
-    typeMismatch('String -> String -> [String]', [getType(s), getType(str), '[String]'].join(' -> '), 'split'),
+    typeMismatch(
+      'String -> String -> [String]',
+      [getType(s), getType(str), '[String]'].join(' -> '),
+      'split'
+    )
   );
 
   return str.split(s);
@@ -797,7 +889,11 @@ const split = curry(function split(s, str) {
 const take = curry(function take(n, xs) {
   assert(
     typeof n === 'number' && (Array.isArray(xs) || typeof xs === 'string'),
-    typeMismatch('Number -> [a] -> [a]', [getType(n), getType(xs), getType(xs)].join(' -> '), 'take'),
+    typeMismatch(
+      'Number -> [a] -> [a]',
+      [getType(n), getType(xs), getType(xs)].join(' -> '),
+      'take'
+    )
   );
 
   return xs.slice(0, n);
@@ -806,7 +902,11 @@ const take = curry(function take(n, xs) {
 const toLowerCase = function toLowerCase(s) {
   assert(
     typeof s === 'string',
-    typeMismatch('String -> String', [getType(s), '?'].join(' -> '), 'toLowerCase'),
+    typeMismatch(
+      'String -> String',
+      [getType(s), '?'].join(' -> '),
+      'toLowerCase'
+    )
   );
 
   return s.toLowerCase();
@@ -815,12 +915,15 @@ const toLowerCase = function toLowerCase(s) {
 const toUpperCase = function toUpperCase(s) {
   assert(
     typeof s === 'string',
-    typeMismatch('String -> String', [getType(s), '?'].join(' -> '), 'toLowerCase'),
+    typeMismatch(
+      'String -> String',
+      [getType(s), '?'].join(' -> '),
+      'toLowerCase'
+    )
   );
 
   return s.toUpperCase();
 };
-
 
 /* ---------- Chapter 4 ---------- */
 
@@ -838,45 +941,50 @@ const keepHighest = function keepHighest(x, y) {
   return x >= y ? x : y;
 };
 
-
 /* ---------- Chapter 5 ---------- */
 
-const cars = [{
-  name: 'Ferrari FF',
-  horsepower: 660,
-  dollar_value: 700000,
-  in_stock: true,
-}, {
-  name: 'Spyker C12 Zagato',
-  horsepower: 650,
-  dollar_value: 648000,
-  in_stock: false,
-}, {
-  name: 'Jaguar XKR-S',
-  horsepower: 550,
-  dollar_value: 132000,
-  in_stock: true,
-}, {
-  name: 'Audi R8',
-  horsepower: 525,
-  dollar_value: 114200,
-  in_stock: false,
-}, {
-  name: 'Aston Martin One-77',
-  horsepower: 750,
-  dollar_value: 1850000,
-  in_stock: true,
-}, {
-  name: 'Pagani Huayra',
-  horsepower: 700,
-  dollar_value: 1300000,
-  in_stock: false,
-}];
+const cars = [
+  {
+    name: 'Ferrari FF',
+    horsepower: 660,
+    dollar_value: 700000,
+    in_stock: true
+  },
+  {
+    name: 'Spyker C12 Zagato',
+    horsepower: 650,
+    dollar_value: 648000,
+    in_stock: false
+  },
+  {
+    name: 'Jaguar XKR-S',
+    horsepower: 550,
+    dollar_value: 132000,
+    in_stock: true
+  },
+  {
+    name: 'Audi R8',
+    horsepower: 525,
+    dollar_value: 114200,
+    in_stock: false
+  },
+  {
+    name: 'Aston Martin One-77',
+    horsepower: 750,
+    dollar_value: 1850000,
+    in_stock: true
+  },
+  {
+    name: 'Pagani Huayra',
+    horsepower: 700,
+    dollar_value: 1300000,
+    in_stock: false
+  }
+];
 
 const average = function average(xs) {
   return xs.reduce(add, 0) / xs.length;
 };
-
 
 /* ---------- Chapter 8 ---------- */
 
@@ -887,9 +995,9 @@ const albert = {
   address: {
     street: {
       number: 22,
-      name: 'Walnut St',
-    },
-  },
+      name: 'Walnut St'
+    }
+  }
 };
 
 const gary = {
@@ -898,25 +1006,26 @@ const gary = {
   name: 'Gary',
   address: {
     street: {
-      number: 14,
-    },
-  },
+      number: 14
+    }
+  }
 };
 
 const theresa = {
   id: 3,
   active: true,
-  name: 'Theresa',
+  name: 'Theresa'
 };
 
 const yi = { id: 4, name: 'Yi', active: true };
 
-const showWelcome = namedAs('showWelcome', compose(concat('Welcome '), prop('name')));
+const showWelcome = namedAs(
+  'showWelcome',
+  compose(concat('Welcome '), prop('name'))
+);
 
 const checkActive = function checkActive(user) {
-  return user.active
-    ? Either.of(user)
-    : left('Your account is not active');
+  return user.active ? Either.of(user) : left('Your account is not active');
 };
 
 const save = function save(user) {
@@ -927,32 +1036,39 @@ const validateUser = curry(function validateUser(validate, user) {
   return validate(user).map(_ => user); // eslint-disable-line no-unused-vars
 });
 
-
 /* ---------- Chapter 9 ---------- */
 
-const getFile = function getFile() { return IO.of('/home/mostly-adequate/ch9.md'); };
-
-const pureLog = function pureLog(str) { return new IO(() => str); };
-
-const addToMailingList = function addToMailingList(email) { return IO.of([email]); };
-
-const emailBlast = function emailBlast(list) { return IO.of(list.join(',')); };
-
-const validateEmail = function validateEmail(x) {
-  return /\S+@\S+\.\S+/.test(x)
-    ? Either.of(x)
-    : left('invalid email');
+const getFile = function getFile() {
+  return IO.of('/home/mostly-adequate/ch9.md');
 };
 
+const pureLog = function pureLog(str) {
+  return new IO(() => str);
+};
+
+const addToMailingList = function addToMailingList(email) {
+  return IO.of([email]);
+};
+
+const emailBlast = function emailBlast(list) {
+  return IO.of(list.join(','));
+};
+
+const validateEmail = function validateEmail(x) {
+  return /\S+@\S+\.\S+/.test(x) ? Either.of(x) : left('invalid email');
+};
 
 /* ---------- Chapter 10 ---------- */
 
 const localStorage = { player1: albert, player2: theresa };
 
-const game = curry(function game(p1, p2) { return `${p1.name} vs ${p2.name}`; });
+const game = curry(function game(p1, p2) {
+  return `${p1.name} vs ${p2.name}`;
+});
 
-const getFromCache = function getFromCache(x) { return new IO(() => localStorage[x]); };
-
+const getFromCache = function getFromCache(x) {
+  return new IO(() => localStorage[x]);
+};
 
 /* ---------- Chapter 11 ---------- */
 
@@ -974,20 +1090,19 @@ const findUserById = function findUserById(id) {
 
 const eitherToTask = namedAs('eitherToTask', either(Task.rejected, Task.of));
 
-
 /* ---------- Chapter 12 ---------- */
 
-const httpGet = function httpGet(route) { return Task.of(`json for ${route}`); };
+const httpGet = function httpGet(route) {
+  return Task.of(`json for ${route}`);
+};
 
 const routes = new Map({
   '/': '/',
-  '/about': '/about',
+  '/about': '/about'
 });
 
 const validate = function validate(player) {
-  return player.name
-    ? Either.of(player)
-    : left('must have name');
+  return player.name ? Either.of(player) : left('must have name');
 };
 
 const readdir = function readdir(dir) {
@@ -997,7 +1112,6 @@ const readdir = function readdir(dir) {
 const readfile = curry(function readfile(encoding, file) {
   return Task.of(`content of ${file} (${encoding})`);
 });
-
 
 /* ---------- Exports ---------- */
 
@@ -1095,6 +1209,6 @@ if (typeof module === 'object') {
     routes,
     validate,
     readdir,
-    readfile,
+    readfile
   };
 }

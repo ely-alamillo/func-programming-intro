@@ -1,0 +1,22 @@
+{
+  "name": "func-programming-intro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ely-alamillo/func-programming-intro.git"
+  },
+  "author": "Ely Alamillo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ely-alamillo/func-programming-intro/issues"
+  },
+  "homepage": "https://github.com/ely-alamillo/func-programming-intro#readme",
+  "dependencies": {
+    "rambda": "^1.0.13"
+  }
+}

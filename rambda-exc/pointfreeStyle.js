@@ -32,12 +32,12 @@ const water = cond([
  * Multi-argument functions
  */
 // regular
-const titlesForYear = curry((year, books) =>
-  pipe(filter(publishedInYear(year)), map(book => book.title))(books)
+const titlesForYear = R.curry((year, books) =>
+  pipe(R.filter(publishedInYear(year)), map(book => book.title))(books)
 );
 // pointfree
 const titlesForYear = year => {
-  R.pipe(filter(publishedYear(year)), map(book => book.title));
+  R.pipe(R.filter(publishedYear(year)), map(book => book.title));
 };
 
 // regular
